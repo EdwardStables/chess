@@ -14,7 +14,6 @@ class Board:
 
     def can_move(self, pos, piece_colour):
         res = not(self.occupied(pos) == piece_colour)
-        print("can move ", pos, res)
         return  res
 
     def occupied(self, pos):
