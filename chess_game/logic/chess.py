@@ -29,6 +29,7 @@ class Piece:
         self.pos = pos
         self.is_white = is_white
         validate_position(self.pos)
+        self.has_moved = False
 
     def moves(board):
         raise NotImplementedError
@@ -90,6 +91,55 @@ class King(Piece):
             if board.can_move(p,self.is_white):
                 positions.add(p)
         return positions
+
+class Pawn(Piece):
+    def __init__(self, pos, is_white):
+        super().__init__("Pawn", pos, is_white)
+    
+    def moves(self, board: Board):
+        dir = 1 if self.is_white else -1
+        let = self.pos[0]
+        let_num = indexOf(CHESS_BOARD_LETTERS, let)
+        num = int(self.pos[1])
+
+        positions = set()
+
+        if num < 8 and board.occupied(n := f"{let}{num+dir}") is None:
+            positions.add(n)
+            if not self.has_moved and board.occupied(n := f"{let}{num+2*dir}") is None:
+                positions.add(n)
+            
+        if let_num > 0 and board.occupied(n := f"{CHESS_BOARD_LETTERS[let_num-1]}{num+dir}") == (not self.is_white):
+            positions.add(n)
+
+        if let_num < 7 and board.occupied(n := f"{CHESS_BOARD_LETTERS[let_num+1]}{num+dir}") == (not self.is_white):
+            positions.add(n)
+
+        return positions
+
+class Knight(Piece):
+    def __init__(self, pos, is_white):
+        super().__init__("Pawn", pos, is_white)
+    
+    def moves(self, board: Board):
+        let = self.pos[0]
+        let_num = indexOf(CHESS_BOARD_LETTERS, let)+2
+        local_CBL = ["k", "k"] + CHESS_BOARD_LETTERS + ["k", "k"]
+        num = int(self.pos[1])
+        positions = filter(validate_position, [
+            f"{local_CBL[let_num-2]}{num-1}",
+            f"{local_CBL[let_num-2]}{num+1}",
+            f"{local_CBL[let_num-1]}{num+2}",
+            f"{local_CBL[let_num+1]}{num+2}",
+            f"{local_CBL[let_num+2]}{num-1}",
+            f"{local_CBL[let_num+2]}{num+1}",
+            f"{local_CBL[let_num-1]}{num-2}",
+            f"{local_CBL[let_num+1]}{num-2}",
+        ])
+
+        positions = filter(lambda p: board.can_move(p, self.is_white), positions)
+
+        return set(positions)
 
 def surrounding_positions(pos: str):
     letter = pos[0]

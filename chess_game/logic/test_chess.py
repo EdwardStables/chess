@@ -19,6 +19,9 @@ def test_board_occupied():
     assert b.occupied("b1") == None
     assert b.occupied("h8") == False
 
+def test_surround_positions():
+    assert set(run_iterator(surrounding_positions, "b2")) == {"a1","b1","c1","c2","c3","b3","a3","a2"}
+
 def test_iterate_board_diag():
     # to top right
     assert run_iterator(iterate_board_diag, "a1", 0) == ["b2","c3","d4","e5","f6","g7","h8"]
@@ -79,6 +82,18 @@ def test_rook_moves_unfriendly():
     pieces = [Rook("a1",True),Rook("a2",False),Rook("b1",False)]
     assert get_moves(pieces) == {"a2","b1"}
 
+def test_rook_moves_empty_board_black():
+    assert get_moves(Rook("a1", True)) ==  {"b1","c1","d1","e1","f1","g1","h1",
+                                            "a2","a3","a4","a5","a6","a7","a8"}
+
+def test_rook_moves_friendly_black():
+    pieces = [Rook("a1",False),Rook("a2",False),Rook("b1",False)]
+    assert get_moves(pieces) == set()
+
+def test_rook_moves_unfriendly_black():
+    pieces = [Rook("a1",False),Rook("a2",True),Rook("b1",True)]
+    assert get_moves(pieces) == {"a2","b1"}
+
 def test_bishop_moves_empty_board():
     assert get_moves(Bishop("b2", True)) == {"a1","c1","a3",
                                              "c3","d4","e5","f6","g7","h8"}
@@ -109,11 +124,74 @@ def test_king_moves_empty_board():
     pieces = [King("a1", True),King("a2",False)]
     assert get_moves(pieces) == {"b1","b2","a2"}
 
+def test_pawn_moves_empty_board_white():
+    assert get_moves(Pawn("b2", True)) == {"b3","b4"}
+
+def test_pawn_moves_empty_board_white_has_moved():
+    p = Pawn("b2", True)
+    p.has_moved = True
+    assert get_moves(p) == {"b3"}
+
+def test_pawn_moves_white_friendly():
+    pieces = [Pawn("b2", True), Pawn("b3", True)]
+    assert get_moves(pieces) == set()
+
+def test_pawn_moves_white_friendly_has_moved():
+    pieces = [Pawn("b2", True), Pawn("b3", True)]
+    pieces[0].has_moved = True
+    assert get_moves(pieces) == set()
+
+def test_pawn_moves_white_unfriendly():
+    pieces = [Pawn("b2", True), Pawn("b3", False), Pawn("c3", False), Pawn("a3", False)]
+    assert get_moves(pieces) == {"a3", "c3"}
+
+def test_pawn_moves_empty_board_black():
+    assert get_moves(Pawn("b7", False)) == {"b6","b5"}
+
+def test_pawn_moves_empty_board_black_has_moved():
+    p = Pawn("b7", False)
+    p.has_moved = True
+    assert get_moves(p) == {"b6"}
+
+def test_pawn_moves_black_friendly():
+    pieces = [Pawn("b7", False), Pawn("b6", False)]
+    assert get_moves(pieces) == set()
+
+def test_pawn_moves_black_friendly_has_moved():
+    pieces = [Pawn("b7", False), Pawn("b6", False)]
+    pieces[0].has_moved = True
+    assert get_moves(pieces) == set()
+
+def test_pawn_moves_black_unfriendly():
+    pieces = [Pawn("b7", False), Pawn("b6", True), Pawn("c6", True), Pawn("a6", True)]
+    assert get_moves(pieces) == {"a6", "c6"}
+    pieces = [Pawn("b7", False), Pawn("c6", True), Pawn("a6", True)]
+    assert get_moves(pieces) == {"a6", "c6","b6","b5"}
+
+def test_knight_moves_empty_board():
+    assert get_moves(Knight("c3",True)) == {"a2","a4","d1","b1","e2","e4","d5","b5"}
+
+def test_knight_moves_empty_board_edge():
+    assert get_moves(Knight("a1",True)) == {"c2","b3"}
+
+def test_knight_moves_empty_board_friendly():
+    pieces = [Knight("a1",True), Knight("b3",True)]
+    assert get_moves(pieces) == {"c2"}
+
+def test_knight_moves_empty_board_friendly_jump():
+    pieces = [Knight("a1",True), Knight("b1",True),Knight("b2",True),Knight("a2",True)]
+    assert get_moves(pieces) == {"c2","b3"}
+
+def test_knight_moves_empty_board_unfriendly():
+    pieces = [Knight("a1",True), Knight("b3",False)]
+    assert get_moves(pieces) == {"c2","b3"}
+
+def test_knight_moves_empty_board_unfriendly_jump():
+    pieces = [Knight("a1",True), Knight("b1",False),Knight("b2",False),Knight("a2",False)]
+    assert get_moves(pieces) == {"c2","b3"}
+
 def get_moves(piece):
     if type(piece) != list:
         piece = [piece]
     b = Board(piece)
     return piece[0].moves(b) 
-
-def test_surround_positions():
-    assert set(run_iterator(surrounding_positions, "b2")) == {"a1","b1","c1","c2","c3","b3","a3","a2"}
