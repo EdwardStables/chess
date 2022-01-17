@@ -195,3 +195,25 @@ def get_moves(piece):
         piece = [piece]
     b = Board(piece)
     return piece[0].moves(b) 
+
+def test_populate_chessboard():
+    b = populate_chessboard()
+    assert b.validate()
+
+def test_board_all_moves():
+    pieces = [Rook("a1",True),Knight("b1",True),Pawn("a2",True),Pawn("b2",True)]
+    board = Board(pieces) 
+    assert board.all_moves(True) == {
+        pieces[0] : set(),
+        pieces[1] : {"a3","c3","d2"},
+        pieces[2] : {"a3","a4"},
+        pieces[3] : {"b3","b4"}
+    }
+
+def test_board_move():
+    pieces = [Rook("a1",True),Knight("b1",True),Pawn("a2",True),Pawn("b2",True)]
+    board = Board(pieces) 
+    assert not board.move(pieces[1], "d3")
+    assert pieces[1].pos == "b1"
+    assert board.move(pieces[1], "a3")
+    assert pieces[1].pos == "a3"

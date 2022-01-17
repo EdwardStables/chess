@@ -1,3 +1,4 @@
+from __future__ import annotations
 from operator import indexOf
 from typing import Set
 
@@ -10,17 +11,59 @@ class Chess:
 
 class Board:
     def __init__(self, pieces):
-        self.pieces = pieces
+        self._pieces = pieces
 
     def can_move(self, pos, piece_colour):
         res = not(self.occupied(pos) == piece_colour)
         return  res
 
     def occupied(self, pos):
-        for p in self.pieces:
+        for p in self._pieces:
             if p.pos == pos:
                 return True if p.is_white else False
         return None
+
+    def all_moves(self, side: bool):
+        sided_pieces = filter(lambda p: p.is_white==side, self._pieces)
+        return {p : p.moves(self) for p in sided_pieces}
+
+    def validate(self):
+        #Run a set of rules to ensure that the board is legal
+        positions = [p.pos for p in self._pieces]
+        #no duplicated positions
+        if len(positions) != len(set(positions)):
+            return False
+        #no illegal positions
+        if any((not validate_position(p)) for p in positions):
+            return False
+
+        return True
+
+    def move(self, piece: Piece, pos):
+        #is this is a piece we have
+        if piece not in self._pieces:
+            return False
+
+        valid_moves = piece.moves(self)
+        if pos not in valid_moves:
+            return False
+
+        piece.pos = pos
+        return True
+
+
+def populate_chessboard():
+    pieces = [
+        Pawn("a2", True),Pawn("b2", True),Pawn("c2", True),Pawn("d2", True),
+        Pawn("e2", True),Pawn("f2", True),Pawn("g2", True),Pawn("h2", True),
+        Rook("a1", True),Knight("b1", True),Bishop("c1", True),Queen("d1", True),
+        King("e1", True),Bishop("f1", True),Knight("g1", True),Rook("h1", True),
+        Pawn("a7", False),Pawn("b7", False),Pawn("c7", False),Pawn("d7", False),
+        Pawn("e7", False),Pawn("f7", False),Pawn("g7", False),Pawn("h7", False),
+        Rook("a8", False),Knight("b8", False),Bishop("c8", False),Queen("d8", False),
+        King("e8", False),Bishop("f8", False),Knight("g8", False),Rook("h8", False),
+    ]
+    return Board(pieces)
 
 class Piece:
     def __init__(self, name, pos: str, is_white: bool):
