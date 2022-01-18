@@ -10,8 +10,6 @@ from datetime import datetime
 app = Flask(__name__)
 api = Api(app)
 
-
-
 class ChessWrapper:
     def __init__(self):
         self.creation_time = datetime.now()
@@ -37,6 +35,11 @@ class ChessWrapper:
 
 all_games = {}
 
+def generate_game_id():
+    while (new_id := randint(1111111,9999999)) in all_games:
+        pass
+    return new_id
+
 class GameState(Resource):
     def get(self, game_id):
         if game := all_games.get(int(game_id), False):
@@ -56,8 +59,7 @@ api.add_resource(OverallState, '/api/state')
 class CreateGame(Resource):
     def post(self):
         global all_games
-        while (new_id := randint(1111111,9999999)) in all_games:
-            pass
+        new_id = generate_game_id()
         all_games[new_id] = ChessWrapper()
         return {"game_id" : new_id}
 api.add_resource(CreateGame, '/api/new')
@@ -78,6 +80,8 @@ class Move(Resource):
 
 api.add_resource(Move, '/api/move/<string:game_id>')
 
+def get_app():
+    return app
 
 if __name__ == '__main__':
     app.run(debug=True)
