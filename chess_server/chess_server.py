@@ -18,6 +18,23 @@ class ChessWrapper:
         self.last_activity_time = datetime.now()
         self.game = Chess()
 
+    def do_move(self, piece: str, pos: str):
+        board = self.game.board
+        occ = board.occupied(piece)
+        if occ is None:
+            return {"Status" : "Fail: No piece there"}
+        if occ != self.game.to_play:
+            return {"Status" : "Fail: Wrong colour piece"}
+        piece = board.get_piece(piece)
+        possible_moves = piece.moves(board)
+        if pos not in possible_moves:
+            return {"Status" : "Fail: Selected move is invalid"}
+        
+        board.move(piece, pos)
+        self.game.to_play = not self.game.to_play
+        return {"Status" : "Success"}
+
+
 all_games = {}
 
 class GameState(Resource):
@@ -56,20 +73,7 @@ class Move(Resource):
             return "Invalid ID"
 
         args = move_parser.parse_args()
-        return self.do_move(game.game, args["piece"], args["pos"])
-
-    def do_move(self, game: Chess, piece, pos):
-        board = game.board
-        occ = board.occupied(piece)
-        if occ is None or occ != game.to_play:
-            return {"Status" : "Fail: Invalid Piece"}
-        piece = board.get_piece(piece)
-        possible_moves = piece.moves(board)
-        if pos not in possible_moves:
-            return {"Status" : "Fail: Selected move is invalid"}
-        
-        board.move(piece, pos)
-        return {"Status" : "Success"}
+        return game.do_move(args["piece"], args["pos"])
 
 
 api.add_resource(Move, '/api/move/<string:game_id>')
