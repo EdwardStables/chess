@@ -8,68 +8,21 @@ Server is essentially a stateful REST API (yeah I know, technically REST shouldn
 
 ## Endpoints
 
-
 ### Get Data
-POST: `api/state`
+`/api/state/<game_id>`
 
-Body: 
-```json
-{
-    "game_id" : 12345,
-    "player_token" : 12345
-}
-```
+State of current game
 
-Return:
-```json
-{
-    "game_id" : 12345,
-    "to_play" : true,
-    "is_white" : true,
-    "white_pieces" : {
-        "a4" : "rook",
-        ...,
-        "g8" : "queen"
-    },
-    "black_pieces" : {
-        ...
-    }
-}
-```
+`/api/state`
 
-### Play
+List overall stats
 
-POST: `api/move`
+### Do something
+`/api/new`
 
-Body: 
-```json
-{
-    "game_id" : 12345,
-    "player_token" : 12345,
-    "move" : ["a4", "a5"]
-}
-```
+Create a new game, returns game ID
 
-Return:
-```json
-{
-    "game_id" : 12345,
-    "move_accepted" : true
-}
-```
-or:
-```json
-{
-    "game_id" : 12345,
-    "move_accepted" : false,
-    "reason" : "Not your move"
-}
-```
-Various reasons are possible:
+`/api/move/<game_id>?piece=<piece>&pos=<pos>`
 
-- Not your move (waiting on other player)
-- Piece blocked (if the board was empty then that would be a valid move)
-- Invalid positions (one of the given positions was not a valid space on a chess board)
-- Invalid move (destination move was not valid for the piece being moved) 
-
-Others will be added as needed
+Do a move. Piece is the current position of the piece to move, pos is the target piece.
+Fails if the move is invalid, e.g. black move on white turn, pos isn't a valid move, piece is not occupied.
