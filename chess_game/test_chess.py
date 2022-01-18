@@ -1,4 +1,4 @@
-from chess import *
+from chess.chess_game.chess import *
 
 def test_validate_position():
     assert validate_position("a1") 
@@ -18,6 +18,12 @@ def test_board_occupied():
     assert b.occupied("a1") == True
     assert b.occupied("b1") == None
     assert b.occupied("h8") == False
+
+def test_board_get_piece():
+    pieces = [Pawn("b2", True),Pawn("c2", True),Pawn("d2", True)]
+    b = Board(pieces)
+    assert b.get_piece("b2") == pieces[0]
+    assert b.get_piece("a2") == None
 
 def test_surround_positions():
     assert set(run_iterator(surrounding_positions, "b2")) == {"a1","b1","c1","c2","c3","b3","a3","a2"}

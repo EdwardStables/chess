@@ -7,7 +7,8 @@ CHESS_BOARD_LETTERS = ['a','b','c','d','e','f','g','h']
 
 class Chess:
     def __init__(self):
-        self.board = Board()
+        self.board = populate_chessboard()
+        self.to_play = True
 
 class Board:
     def __init__(self, pieces):
@@ -21,6 +22,12 @@ class Board:
         for p in self._pieces:
             if p.pos == pos:
                 return True if p.is_white else False
+        return None
+
+    def get_piece(self, pos):
+        for p in self._pieces:
+            if p.pos == pos:
+                return p
         return None
 
     def all_moves(self, side: bool):
@@ -49,6 +56,7 @@ class Board:
             return False
 
         piece.pos = pos
+        piece.has_moved = True
         return True
 
 
