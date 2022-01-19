@@ -1,6 +1,6 @@
 from __future__ import annotations
 from operator import indexOf
-from typing import Set
+from typing import Set, List
 
 
 CHESS_BOARD_LETTERS = ['a','b','c','d','e','f','g','h']
@@ -10,13 +10,22 @@ class Chess:
         self.board = populate_chessboard()
         self.to_play = True
 
+    def get_white_pieces(self):
+        return {p.pos : p.name for p in self.board.all_pieces() if p.is_white}    
+
+    def get_black_pieces(self):
+        return {p.pos : p.name for p in self.board.all_pieces() if not p.is_white}    
+
 class Board:
-    def __init__(self, pieces):
+    def __init__(self, pieces: List[Piece]):
         self._pieces = pieces
 
     def can_move(self, pos, piece_colour):
         res = not(self.occupied(pos) == piece_colour)
         return  res
+
+    def all_pieces(self) -> List[Piece]:
+        return self._pieces
 
     def occupied(self, pos):
         for p in self._pieces:
@@ -169,7 +178,7 @@ class Pawn(Piece):
 
 class Knight(Piece):
     def __init__(self, pos, is_white):
-        super().__init__("Pawn", pos, is_white)
+        super().__init__("Knight", pos, is_white)
     
     def moves(self, board: Board):
         let = self.pos[0]

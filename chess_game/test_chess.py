@@ -223,3 +223,48 @@ def test_board_move():
     assert pieces[1].pos == "b1"
     assert board.move(pieces[1], "a3")
     assert pieces[1].pos == "a3"
+
+def test_get_chess_white_pieces():
+    c = Chess()
+    c.get_white_pieces() == {
+        "a1" : "Rook", "b1" : "Knight", "c1" : "Bishop", "d1" : "Queen", 
+        "e1" : "King", "f1" : "Bishop", "g1" : "Knight", "h1" : "Rook", 
+        "a2" : "Pawn", "b2" : "Pawn", "c2" : "Pawn", "d2" : "Pawn", 
+        "e2" : "Pawn", "f2" : "Pawn", "g2" : "Pawn", "h2" : "Pawn"
+    }
+    c.get_black_pieces() == { 
+        "a8" : "Rook", "b8" : "Knight", "c8" : "Bishop", "d8" : "Queen", 
+        "e8" : "King", "f8" : "Bishop", "g8" : "Knight", "h8" : "Rook", 
+        "a7" : "Pawn", "b7" : "Pawn", "c7" : "Pawn", "d7" : "Pawn", 
+        "e7" : "Pawn", "f7" : "Pawn", "g7" : "Pawn", "h7" : "Pawn"
+    }
+
+def test_piece_name():
+    assert Rook("a1", is_white=True).name == "Rook"
+    assert Knight("a1", is_white=True).name == "Knight"
+    assert Bishop("a1", is_white=True).name == "Bishop"
+    assert Queen("a1", is_white=True).name == "Queen"
+    assert King("a1", is_white=True).name == "King"
+    assert Pawn("a1", is_white=True).name == "Pawn"
+
+def test_piece_pos():
+    assert Rook("a1", is_white=True).pos == "a1"
+    assert Knight("b7", is_white=True).pos == "b7"
+    assert Bishop("c2", is_white=True).pos == "c2"
+    assert Queen("g8", is_white=True).pos == "g8"
+    assert King("d1", is_white=True).pos == "d1"
+    assert Pawn("e5", is_white=True).pos == "e5"
+
+def test_piece_side():
+    assert Rook("a1", is_white=True).is_white == True
+    assert Rook("a1", is_white=False).is_white == False
+    assert Knight("a1", is_white=True).is_white == True
+    assert Knight("a1", is_white=False).is_white == False
+    assert Bishop("a1", is_white=True).is_white == True
+    assert Bishop("a1", is_white=False).is_white == False
+    assert Queen("a1", is_white=True).is_white == True
+    assert Queen("a1", is_white=False).is_white == False
+    assert King("a1", is_white=True).is_white == True
+    assert King("a1", is_white=False).is_white == False
+    assert Pawn("a1", is_white=True).is_white == True
+    assert Pawn("a1", is_white=False).is_white == False
