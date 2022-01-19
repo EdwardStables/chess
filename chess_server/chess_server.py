@@ -32,29 +32,37 @@ class ChessWrapper:
         self.game.to_play = not self.game.to_play
         return {"Status" : "Success"}
 
+move_parser = reqparse.RequestParser()
+move_parser.add_argument("piece", type=str)
+move_parser.add_argument("pos", type=str)
 
 all_games = {}
 
 def generate_game_id():
-    while (new_id := randint(1111111,9999999)) in all_games:
+    while (new_id := randint(1000000,9999999)) in all_games:
         pass
     return new_id
 
 class GameState(Resource):
     def get(self, game_id):
-        if game := all_games.get(int(game_id), False):
+        game_id = int(game_id)
+        if game := all_games.get(game_id, False):
+            game : ChessWrapper
+
+            print(game.game.get_white_pieces())
+
             return {
                 "game_id" : game_id,
-                "to_play" : game.game.to_play
+                "to_play" : game.game.to_play,
+                "white_pieces" : game.game.get_white_pieces(),
+                "black_pieces" : game.game.get_black_pieces(),
             }
-
-api.add_resource(GameState, '/api/state/<string:game_id>')
+        else:
+            return "Invalid ID", 404
 
 class OverallState(Resource):
     def get(self):
             return {"game_count" : len(all_games)}
-
-api.add_resource(OverallState, '/api/state')
 
 class CreateGame(Resource):
     def post(self):
@@ -62,22 +70,20 @@ class CreateGame(Resource):
         new_id = generate_game_id()
         all_games[new_id] = ChessWrapper()
         return {"game_id" : new_id}
-api.add_resource(CreateGame, '/api/new')
-
-move_parser = reqparse.RequestParser()
-move_parser.add_argument("piece", type=str)
-move_parser.add_argument("pos", type=str)
 
 class Move(Resource):
     def post(self, game_id):
         game = all_games.get(int(game_id),False)
         if game == False:
-            return "Invalid ID"
+            return "Invalid ID", 404
 
         args = move_parser.parse_args()
         return game.do_move(args["piece"], args["pos"])
 
 
+api.add_resource(CreateGame, '/api/new')
+api.add_resource(GameState, '/api/state/<string:game_id>')
+api.add_resource(OverallState, '/api/state')
 api.add_resource(Move, '/api/move/<string:game_id>')
 
 def get_app():
