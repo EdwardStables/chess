@@ -4,11 +4,13 @@ sys.path.append("..")
 from chess.chess_game.chess import Chess
 from flask import Flask, render_template
 from flask_restful import Resource, Api, reqparse
+from flask_cors import CORS
 from random import randint
 from datetime import datetime
 
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
 
 class ChessWrapper:
     def __init__(self):
@@ -19,6 +21,7 @@ class ChessWrapper:
     def do_move(self, piece: str, pos: str):
         board = self.game.board
         occ = board.occupied(piece)
+        print(piece, pos)
         if occ is None:
             return {"Status" : "Fail: No piece there"}
         if occ != self.game.to_play:
@@ -31,6 +34,16 @@ class ChessWrapper:
         board.move(piece, pos)
         self.game.to_play = not self.game.to_play
         return {"Status" : "Success"}
+
+    def query_move(self, piece: str):
+        board = self.game.board
+        occ = board.occupied(piece)
+        if occ is None:
+            return {"Status" : "Fail: No piece there"}
+        if occ != self.game.to_play:
+            return {"Status" : "Fail: Wrong colour piece"}
+        return {"Status" : "Success", "Moves": list(board.get_piece(piece).moves(board)), "Piece" : piece}
+
 
 move_parser = reqparse.RequestParser()
 move_parser.add_argument("piece", type=str)
@@ -75,16 +88,30 @@ class Move(Resource):
     def post(self, game_id):
         game = all_games.get(int(game_id),False)
         if game == False:
-            return "Invalid ID", 404
+            return {"Status" : "Invalid ID"}
 
         args = move_parser.parse_args()
         return game.do_move(args["piece"], args["pos"])
 
+class Query(Resource):
+    def get(self, game_id):
+        try:
+            game = all_games.get(int(game_id),False)
+        except ValueError:
+            print(f"Attempt to access invalid gameid {game_id}")
+            game = False
+
+        if game == False:
+            return {"Status" : "Invalid ID"}
+
+        args = move_parser.parse_args()
+        return game.query_move(args["piece"])
 
 api.add_resource(CreateGame, '/api/new')
 api.add_resource(GameState, '/api/state/<string:game_id>')
 api.add_resource(OverallState, '/api/state')
 api.add_resource(Move, '/api/move/<string:game_id>')
+api.add_resource(Query, '/api/query/<string:game_id>')
 
 @app.route('/')
 def chess_game():
