@@ -2,7 +2,7 @@
 import sys
 sys.path.append("..")
 from chess.chess_game.chess import Chess
-from flask import Flask
+from flask import Flask, render_template
 from flask_restful import Resource, Api, reqparse
 from random import randint
 from datetime import datetime
@@ -85,6 +85,10 @@ api.add_resource(CreateGame, '/api/new')
 api.add_resource(GameState, '/api/state/<string:game_id>')
 api.add_resource(OverallState, '/api/state')
 api.add_resource(Move, '/api/move/<string:game_id>')
+
+@app.route('/')
+def chess_game():
+    return render_template("index.html")
 
 def get_app():
     return app
