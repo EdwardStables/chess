@@ -128,6 +128,7 @@ function place_pieces(piece_obj, is_white){
 
 function create_game(){
   console.log("Requesting creation of new game...");
+  clear_highlight();
   server_request("new", "POST", create_game_response_handler);
 }
 
