@@ -1,0 +1,37 @@
+table.chess > tbody > tr > td {
+    width: 100px;
+    height: 100px;
+    padding: 0%;
+    margin: 0%;
+    border: 1px solid black;
+    text-align: center;
+    font-weight: bold;
+    font-size: xx-large;
+}
+
+table.chess {
+    border: 1px solid black;
+    border-spacing: 0px;
+}
+
+td.white {
+    background-color: white;
+    -webkit-text-stroke: 2px black;
+}
+
+td.black {
+    background-color: black;
+    -webkit-text-stroke: 2px white;
+}
+
+td.highlight {
+    background-color: red;
+}
+
+td.is_white {
+    color: white;
+}
+
+td.is_black {
+    color: black;
+}
