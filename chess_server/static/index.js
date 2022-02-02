@@ -1,3 +1,9 @@
+//STATE 
+var currentGameId = "none";
+var selected_piece = "none"
+var selection_state = "CHOOSE_PIECE"
+
+
 function get_cell(col_letter, row_number) {
   var rows = document.getElementById("chess_board").children[0].children;
   var row = rows[Math.abs(row_number-8)].children;
@@ -16,7 +22,6 @@ function index_to_letter(col_number) {
 }
 
 function highlight(c, r){
-  clear_highlight(); 
   highlight_cell(c, r);
 }
 
@@ -48,8 +53,16 @@ function set_piece(c, r, piece, is_white) {
   }
 }
 
+function clear_all_pieces(){
+  var letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+  for (var i=1; i <= 8; i++){
+    for (var j=0; j <= 7; j++){
+      clear_piece(letters[j], i);
+    }
+  }
+}
+
 function clear_piece(c, r){
-  console.log("clearing " + c + r);
   var cell = get_cell(c, r);
   cell.innerHTML = ""
   cell.classList.remove("is_white");
@@ -63,15 +76,92 @@ function add_cell_handlers(table_body){
 
       var clickHandler = function(col_letter, row_number) {
         return function() {
-          highlight(col_letter, row_number);
+          if (selection_state == "CHOOSE_PIECE"){
+            server_request("query/"+currentGameId+"?piece="+col_letter+row_number, "GET", query_response_handler);
+          } else if (selection_state == "CHOOSE_MOVE"){
+            server_request("move/"+currentGameId+"?piece="+selected_piece+"&pos="+col_letter+row_number, "POST", move_response_handler);
+          }
         }
       }
-
       cell.onclick = clickHandler(index_to_letter(j), Math.abs(i-8));
     }
   }
 }
 
+function query_response_handler(response){
+  console.log("Query response:")
+  console.log(response)
+  if (response.Status == "Success"){
+    clear_highlight();
+    highlight(response.Piece[0], response.Piece[1])
+    response.Moves.forEach(p => {
+      console.log(p)
+      highlight(p[0], p[1]);
+    });
+    selected_piece = response.Piece
+    selection_state = "CHOOSE_MOVE"
+  } else {
+    selection_state = "CHOOSE_PIECE"
+    console.log(response.Status);
+  }
+}
+
+function move_response_handler(response){
+  console.log("Move response:")
+  console.log(response)
+  if (response.Status == "Success"){
+    clear_highlight();
+    get_game_state(currentGameId);
+    selection_state = "CHOOSE_PIECE"
+  } else {
+    clear_highlight()
+    selection_state = "CHOOSE_PIECE"
+    console.log(response.Status);
+  }
+}
+
+function place_pieces(piece_obj, is_white){
+  for (const [place, name] of Object.entries(piece_obj)) {
+    set_piece(place[0], place[1], name, is_white)
+  }
+}
+
+function create_game(){
+  console.log("Requesting creation of new game...");
+  server_request("new", "POST", create_game_response_handler);
+}
+
+function create_game_response_handler(response){
+  currentGameId = response["game_id"]
+  document.getElementById("game_id").textContent = currentGameId
+  get_game_state(currentGameId)
+}
+
+function get_game_state(currentGameId){
+  console.log("Requesting state of game ID " + currentGameId);
+  server_request("state/"+currentGameId, "GET", get_game_state_response_handler);
+}
+
+function get_game_state_response_handler(response){
+  document.getElementById("to_play").textContent = response.to_play ? "White" : "Black";
+  clear_all_pieces();
+  place_pieces(response.white_pieces, true);
+  place_pieces(response.black_pieces, false);
+}
+
 window.onload = function () {
   add_cell_handlers(document.getElementById("chess_board").children[0]);
+}
+
+function server_request(endpoint, type, handler){
+  const Http = new XMLHttpRequest();
+  const url='http://127.0.0.1:5000/api/' + endpoint;
+  Http.open(type, url);
+  Http.send();
+
+  Http.onreadystatechange = (e) => {
+    if (Http.readyState === XMLHttpRequest.DONE){
+      handler(JSON.parse(Http.responseText))
+    }
+  }
 }
