@@ -21,8 +21,7 @@ class Board:
         self._pieces = pieces
 
     def can_move(self, pos, piece_colour):
-        res = not(self.occupied(pos) == piece_colour)
-        return  res
+        return self.occupied(pos) != piece_colour
 
     def all_pieces(self) -> List[Piece]:
         return self._pieces
@@ -41,7 +40,16 @@ class Board:
 
     def all_moves(self, side: bool):
         sided_pieces = filter(lambda p: p.is_white==side, self._pieces)
-        return {p : p.moves(self) for p in sided_pieces}
+
+        def split(movelist):
+            moves = set()
+            takes = set()
+            for m in movelist:
+                gp = self.get_piece(m)
+                (moves if gp is None or gp.is_white==side else takes).add(m)
+            return (moves, takes)
+
+        return {p : split(p.moves(self)) for p in sided_pieces}
 
     def validate(self):
         #Run a set of rules to ensure that the board is legal
@@ -90,7 +98,7 @@ class Piece:
         validate_position(self.pos)
         self.has_moved = False
 
-    def moves(board):
+    def moves(board) -> Set[str]:
         raise NotImplementedError
 
     def cardinal_iteration(self, board: Board) -> Set[str]:

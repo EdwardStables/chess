@@ -209,12 +209,20 @@ def test_populate_chessboard():
 def test_board_all_moves():
     pieces = [Rook("a1",True),Knight("b1",True),Pawn("a2",True),Pawn("b2",True)]
     board = Board(pieces) 
-    assert board.all_moves(True) == {
-        pieces[0] : set(),
-        pieces[1] : {"a3","c3","d2"},
-        pieces[2] : {"a3","a4"},
-        pieces[3] : {"b3","b4"}
-    }
+    moves = board.all_moves(True)
+    assert moves[pieces[0]] == (set(),set())
+    assert moves[pieces[1]] == ({"a3","c3","d2"},set())
+    assert moves[pieces[2]] == ({"a3","a4"},set())
+    assert moves[pieces[3]] == ({"b3","b4"},set())
+
+def test_board_all_moves_takes():
+    pieces = [Rook("a1",True),Knight("b1",True),Pawn("a2",True),Pawn("b2",True),Pawn("c3",False)]
+    board = Board(pieces) 
+    moves = board.all_moves(True)
+    assert moves[pieces[0]] == (set(),set())
+    assert moves[pieces[1]] == ({"a3","d2"},{"c3"})
+    assert moves[pieces[2]] == ({"a3","a4"},set())
+    assert moves[pieces[3]] == ({"b3","b4"},{"c3"})
 
 def test_board_move():
     pieces = [Rook("a1",True),Knight("b1",True),Pawn("a2",True),Pawn("b2",True)]
