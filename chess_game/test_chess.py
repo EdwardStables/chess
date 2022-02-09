@@ -276,3 +276,26 @@ def test_piece_side():
     assert King("a1", is_white=False).is_white == False
     assert Pawn("a1", is_white=True).is_white == True
     assert Pawn("a1", is_white=False).is_white == False
+
+
+def test_invalid_take_doesnt_change_board():
+    pieces = [Rook("a1",True),Knight("b1",True),Pawn("a2",True),Pawn("b2",True),Pawn("c3",False)]
+    board = Board(pieces) 
+    moves = board.all_moves(True)
+    assert board.take(pieces[0], "c3") == False
+    assert pieces[0].pos == "a1"
+    assert pieces[1].pos == "b1"
+    assert pieces[2].pos == "a2"
+    assert pieces[3].pos == "b2"
+    assert pieces[4] in board.all_pieces()
+
+def test_valid_take_updates_board():
+    pieces = [Rook("a1",True),Knight("b1",True),Pawn("a2",True),Pawn("b2",True),Pawn("c3",False)]
+    board = Board(pieces) 
+    moves = board.all_moves(True)
+    assert board.take(pieces[1], "c3") == True
+    assert pieces[0].pos == "a1"
+    assert pieces[1].pos == "c3"
+    assert pieces[2].pos == "a2"
+    assert pieces[3].pos == "b2"
+    assert pieces[4] not in board.all_pieces()

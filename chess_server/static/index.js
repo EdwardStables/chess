@@ -145,9 +145,15 @@ function get_game_state(currentGameId){
 
 function get_game_state_response_handler(response){
   document.getElementById("to_play").textContent = response.to_play ? "White" : "Black";
+  console.log("Received piece list update")
+  redraw(response.white_pieces, response.black_pieces);
+}
+
+function redraw(white, black){
+  console.log("redrawing")
   clear_all_pieces();
-  place_pieces(response.white_pieces, true);
-  place_pieces(response.black_pieces, false);
+  place_pieces(white, true);
+  place_pieces(black, false);
 }
 
 window.onload = function () {

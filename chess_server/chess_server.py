@@ -27,13 +27,19 @@ class ChessWrapper:
         if occ != self.game.to_play:
             return {"Status" : "Fail: Wrong colour piece"}
         piece = board.get_piece(piece)
-        possible_moves = piece.moves(board)
-        if pos not in possible_moves:
+        moves, takes = board.piece_moves(piece)
+        if pos not in moves.union(takes):
             return {"Status" : "Fail: Selected move is invalid"}
         
-        board.move(piece, pos)
+        if pos in moves:
+            board.move(piece, pos)
+            action = f"move to {pos}"
+        if pos in takes:
+            board.take(piece, pos)
+            action = f"take piece on {pos}"
+
         self.game.to_play = not self.game.to_play
-        return {"Status" : "Success"}
+        return {"Status" : "Success", "Action" : action}
 
     def query_move(self, piece: str):
         board = self.game.board

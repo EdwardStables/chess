@@ -1,6 +1,6 @@
 from __future__ import annotations
 from operator import indexOf
-from typing import Set, List
+from typing import Set, List, Tuple
 
 
 CHESS_BOARD_LETTERS = ['a','b','c','d','e','f','g','h']
@@ -40,16 +40,17 @@ class Board:
 
     def all_moves(self, side: bool):
         sided_pieces = filter(lambda p: p.is_white==side, self._pieces)
+        return {p : self.piece_moves(p) for p in sided_pieces}
 
+    def piece_moves(self, piece: Piece) -> Tuple[Set[str], Set[str]]:
         def split(movelist):
             moves = set()
             takes = set()
             for m in movelist:
                 gp = self.get_piece(m)
-                (moves if gp is None or gp.is_white==side else takes).add(m)
+                (moves if gp is None or gp.is_white==piece.is_white else takes).add(m)
             return (moves, takes)
-
-        return {p : split(p.moves(self)) for p in sided_pieces}
+        return split(piece.moves(self))
 
     def validate(self):
         #Run a set of rules to ensure that the board is legal
@@ -68,14 +69,32 @@ class Board:
         if piece not in self._pieces:
             return False
 
-        valid_moves = piece.moves(self)
-        if pos not in valid_moves:
+        moves, takes = self.piece_moves(piece)
+
+        if pos in moves:
+            piece.pos = pos
+            piece.has_moved = True
+            return True
+        elif pos in takes:
+            return self.take(piece, pos)
+
+        return False
+
+    def take(self, piece: Piece, pos: str):
+        if pos not in [p.pos for p in self._pieces if p.is_white != piece.is_white]:
             return False
 
+        _, takes = self.piece_moves(piece)
+
+        if pos not in takes:
+            return False
+        
+        self.remove_piece(pos)
         piece.pos = pos
-        piece.has_moved = True
         return True
 
+    def remove_piece(self, pos):
+        self._pieces = [p for p in self._pieces if p.pos != pos]
 
 def populate_chessboard():
     pieces = [
