@@ -21,10 +21,6 @@ function index_to_letter(col_number) {
   return dict[col_number];
 }
 
-function highlight(c, r){
-  highlight_cell(c, r);
-}
-
 function clear_highlight(){
   var letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
   for (var i=1; i <= 8; i++){
@@ -34,12 +30,14 @@ function clear_highlight(){
   }
 }
 
-function highlight_cell(c, r){
-  get_cell(c, r).classList.add("highlight");
-}
+function highlight_self(c, r){get_cell(c, r).classList.add("highlight_self");}
+function highlight_move(c, r){get_cell(c, r).classList.add("highlight_move");}
+function highlight_take(c, r){get_cell(c, r).classList.add("highlight_take");}
 
 function unhighlight_cell(c, r){
-  get_cell(c, r).classList.remove("highlight");
+  get_cell(c, r).classList.remove("highlight_move");
+  get_cell(c, r).classList.remove("highlight_self");
+  get_cell(c, r).classList.remove("highlight_take");
 }
 
 function set_piece(c, r, piece, is_white) {
@@ -93,10 +91,12 @@ function query_response_handler(response){
   console.log(response)
   if (response.Status == "Success"){
     clear_highlight();
-    highlight(response.Piece[0], response.Piece[1])
+    highlight_self(response.Piece[0], response.Piece[1])
     response.Moves.forEach(p => {
-      console.log(p)
-      highlight(p[0], p[1]);
+      highlight_move(p[0], p[1]);
+    });
+    response.Takes.forEach(p => {
+      highlight_take(p[0], p[1]);
     });
     selected_piece = response.Piece
     selection_state = "CHOOSE_MOVE"

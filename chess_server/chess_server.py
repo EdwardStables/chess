@@ -42,7 +42,9 @@ class ChessWrapper:
             return {"Status" : "Fail: No piece there"}
         if occ != self.game.to_play:
             return {"Status" : "Fail: Wrong colour piece"}
-        return {"Status" : "Success", "Moves": list(board.get_piece(piece).moves(board)), "Piece" : piece}
+        piece_obj = board.get_piece(piece)
+        moves, takes = board.all_moves(piece_obj.is_white)[piece_obj]
+        return {"Status" : "Success", "Moves": list(moves), "Takes": list(takes), "Piece" : piece}
 
 
 move_parser = reqparse.RequestParser()

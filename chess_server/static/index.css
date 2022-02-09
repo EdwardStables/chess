@@ -24,8 +24,16 @@ td.black {
     -webkit-text-stroke: 2px white;
 }
 
-td.highlight {
+td.highlight_take {
     background-color: red;
+}
+
+td.highlight_move {
+    background-color: blue;
+}
+
+td.highlight_self {
+    background-color: grey;
 }
 
 td.is_white {

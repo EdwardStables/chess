@@ -32,7 +32,7 @@ class Board:
                 return True if p.is_white else False
         return None
 
-    def get_piece(self, pos):
+    def get_piece(self, pos) -> Piece:
         for p in self._pieces:
             if p.pos == pos:
                 return p
