@@ -62,8 +62,8 @@ def test_api_new_code_200(server):
 def test_api_move_code_200(create_game):
     assert post(f"/api/move/{create_game}?piece=a2&pos=a3").status_code == 200
 
-def test_api_move_invalid_game_id_code_404(create_game):
-    assert post(f"/api/move/0000000?piece=a2&pos=a3").status_code == 404
+def test_api_move_invalid_game_id_code_200(create_game):
+    assert post(f"/api/move/0000000?piece=a2&pos=a3").status_code == 200
 
 ################################################################################
 ##### Server logic testing
